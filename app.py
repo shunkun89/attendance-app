@@ -116,24 +116,7 @@ def index():
         sheet.append_row([code, name, class_name, attendance, transport, party])
 
             # 結果をExcelファイルに保存（追記）
-            response_df = pd.DataFrame([{
-                'コード': code,
-                '氏名': name,
-                'クラス': class_name,
-                '出欠': attendance,
-                '交通手段': transport,
-                '懇親会': party
-            }])
-
-            file_path = 'responses.xlsx'
-            if os.path.exists(file_path):
-                existing = pd.read_excel(file_path, engine='openpyxl')
-                new_df = pd.concat([existing, response_df], ignore_index=True)
-            else:
-                new_df = response_df
-
-            new_df.to_excel(file_path, index=False, engine='openpyxl')
-
+ 
     return render_template_string(form_html,
                                   name=name,
                                   class_name=class_name,
