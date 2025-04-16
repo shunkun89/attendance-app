@@ -109,7 +109,7 @@ def index():
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets",
                  "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
 
-        creds = ServiceAccountCredentials.from_json_keyfile_name('c:\Users\mikawa\Downloads\attendance-sheet-456907-814285e7669c.json', scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_name('attendance-sheet-456907-814285e7669c.json', scope)
         client = gspread.authorize(creds)
 
         sheet = client.open("responses").sheet1  # スプレッドシート名に合わせて変更！
