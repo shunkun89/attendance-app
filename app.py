@@ -1,7 +1,7 @@
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 from flask import Flask, request, render_template_string
 import pandas as pd
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 import os
 
 app = Flask(__name__)
@@ -105,19 +105,19 @@ def index():
             party = request.form.get('party')
             submitted = True
 
-            # Google Sheets に保存
-            scope = [
-                "https://spreadsheets.google.com/feeds",
-                "https://www.googleapis.com/auth/spreadsheets",
-                "https://www.googleapis.com/auth/drive.file",
-                "https://www.googleapis.com/auth/drive"
-            ]
+            try:
+                scope = ["https://spreadsheets.google.com/feeds",
+                         "https://www.googleapis.com/auth/spreadsheets",
+                         "https://www.googleapis.com/auth/drive.file",
+                         "https://www.googleapis.com/auth/drive"]
 
-            creds = ServiceAccountCredentials.from_json_keyfile_name('attendance-sheet-456907-814285e7669c.json', scope)
-            client = gspread.authorize(creds)
+                creds = ServiceAccountCredentials.from_json_keyfile_name('attendance-sheet-456907-814285e7669c.json', scope)
+                client = gspread.authorize(creds)
+                sheet = client.open("responses").sheet1
+                sheet.append_row([code, name, class_name, attendance, transport, party])
 
-            sheet = client.open("responses").sheet1
-            sheet.append_row([code, name, class_name, attendance, transport, party])
+            except Exception as e:
+                error = f"スプレッドシートへの保存中にエラーが発生しました: {str(e)}"
 
     return render_template_string(form_html,
                                   name=name,
