@@ -1,8 +1,7 @@
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-
 from flask import Flask, request, render_template_string
 import pandas as pd
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 import os
 
 app = Flask(__name__)
@@ -95,7 +94,7 @@ def index():
                 name = person.iloc[0]['氏名']
                 class_name = person.iloc[0]['クラス']
 
-    elif request.form.get('submit'):  # フォーム送信処理
+    elif request.form.get('submit'):
         code = request.form.get('code')
         person = df[df['コード'] == int(code)]
         if not person.empty:
@@ -105,19 +104,21 @@ def index():
             transport = request.form.get('transport')
             party = request.form.get('party')
             submitted = True
-        # Google Sheets に保存
-        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets",
-                 "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
 
-        creds = ServiceAccountCredentials.from_json_keyfile_name('attendance-sheet-456907-367b4c11bf6f.json', scope)
+            try:
+                scope = ["https://spreadsheets.google.com/feeds",
+                         "https://www.googleapis.com/auth/spreadsheets",
+                         "https://www.googleapis.com/auth/drive.file",
+                         "https://www.googleapis.com/auth/drive"]
 
-        client = gspread.authorize(creds)
+                creds = ServiceAccountCredentials.from_json_keyfile_name('attendance-sheet-456907-814285e7669c.json', scope)
+                client = gspread.authorize(creds)
+                sheet = client.open("responses").sheet1
+                sheet.append_row([code, name, class_name, attendance, transport, party])
 
-        sheet = client.open("responses").sheet1  # スプレッドシート名に合わせて変更！
-        sheet.append_row([code, name, class_name, attendance, transport, party])
+            except Exception as e:
+                error = f"スプレッドシートへの保存中にエラーが発生しました: {str(e)}"
 
-            # 結果をExcelファイルに保存（追記）
- 
     return render_template_string(form_html,
                                   name=name,
                                   class_name=class_name,
@@ -127,7 +128,6 @@ def index():
                                   party=party,
                                   submitted=submitted,
                                   error=error)
-import os
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
